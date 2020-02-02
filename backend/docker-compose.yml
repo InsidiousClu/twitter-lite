@@ -1,0 +1,26 @@
+version: "3.3"
+
+services:
+  twitter_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    ports:
+      - 8080:8080
+    environment:
+      - POSTGRES_USER=twitter_clone
+      - POSTGRES_PASSWORD=twitter_clone
+      - POSTGRES_DB=twitter_clone
+      - DB_HOST=database
+  database:
+    image: postgres
+    environment:
+      - POSTGRES_USER=twitter_clone
+      - POSTGRES_DB=twitter_clone
+      - POSTGRES_PASSWORD=twitter_clone
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
