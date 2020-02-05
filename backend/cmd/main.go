@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// replace with .bash script for DB init wait loop
-	time.Sleep(time.Second * 10)
+	//time.Sleep(time.Second * 10)
 
 	c, err := config.NewConfig()
 	if err != nil {

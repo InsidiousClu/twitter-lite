@@ -1,5 +1,5 @@
-type Action = { type: string }
-type Handler<State> = {
+type Action = { type: string, payload?: any }
+export type Handler<State> = {
 	[key: string]: (state: State, action: Action) => State
 }
 

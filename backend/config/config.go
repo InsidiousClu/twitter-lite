@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/InsidiousClu/twitter-clone/pkg/models"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"os"
@@ -33,9 +34,10 @@ func NewConfig() (*Config, error) {
 		return nil, err
 	}
 	db.LogMode(true)
+	db.AutoMigrate(&models.User{})
 	c := Config{
 		Conn: db,
-		AppAddr: fmt.Sprintf("%s:%s", GetEnv("APP_ADDR", "127.0.0.1"), GetEnv("PORT", "8080")),
+		AppAddr: fmt.Sprintf(":%s", GetEnv("PORT", "8082")),
 	}
 	return &c, nil
 }
