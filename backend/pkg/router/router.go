@@ -7,7 +7,7 @@ import (
 )
 
 func HandleRequest(conn *gorm.DB) *mux.Router {
-	r := mux.NewRouter().StrictSlash(true)
+	r := mux.NewRouter()
 
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
