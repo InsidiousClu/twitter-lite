@@ -1,24 +1,33 @@
 import React, { ReactElement } from 'react';
 
-import { animated } from 'react-spring';
+import { animated, interpolate } from 'react-spring';
 import { useScale } from '../hooks';
 
 type Props = {
 	fill?: string;
 	className?: string;
+	width?: string | number;
+	height?: string | number;
+	unit?: '%' | 'px' | 'vh' | 'vw';
 };
 
-export default function TwitterIcon({ fill = 'white', className }: Props): ReactElement {
+export default function TwitterIcon({
+	fill = 'white',
+	className,
+	width = 150,
+	height = 200,
+	unit = 'px'
+}: Props): ReactElement {
 	const { handleMouseOver, handleMouseLeave, scale } = useScale({ initialScale: 1, toScale: 0.5 });
 
 	return (
 		<animated.div
 			onMouseOver={handleMouseOver}
 			onMouseLeave={handleMouseLeave}
-			style={{ transform: scale.interpolate(s => `scale(${s})`) }}
+			style={{ transform: interpolate(scale, s => `scale(${s})`) }}
 			className={className}
 		>
-			<svg viewBox="0 0 24 24" width="150px" height="200px">
+			<svg viewBox="0 0 24 24" width={`${width}${unit}`} height={`${height}${unit}`}>
 				<g>
 					<path
 						fill={fill}

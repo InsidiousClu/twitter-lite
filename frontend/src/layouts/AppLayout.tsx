@@ -1,5 +1,5 @@
-import React, { ReactChild, ReactElement } from 'react';
-import { useTransition, animated } from 'react-spring';
+import React, { ReactElement } from 'react';
+import { useTransition, animated, config } from 'react-spring';
 import styled from 'styled-components';
 
 type Props = {
@@ -7,23 +7,27 @@ type Props = {
 	routeId: string;
 };
 
-const AppLayoutContainer = styled(animated.div)`
-	display: grid;
-	height: 100vh;
-	width: 100vw;
-	background-color: ${props => props.theme.colors.dark_blue};
+// spring@next version, meh
+const AppLayoutContainer = styled(animated.div)<any>`
+	width: 100%;
+	height: 100%;
 `;
 
 export default function AppLayout({ children, routeId }: Props): any {
 	const transition = useTransition(routeId, null, {
 		from: { position: 'absolute', opacity: 0 },
 		enter: { opacity: 1 },
-		leave: { opacity: 0 }
+		leave: { opacity: 0 },
+		config: {
+			...config.default,
+			duration: 500,
+			delay: 350
+		}
 	});
 
 	return transition.map(({ key, props }) => (
 		<AppLayoutContainer key={key} style={props}>
-			{children}
+			<div className="w-100 h-100">{children}</div>
 		</AppLayoutContainer>
 	));
 }
