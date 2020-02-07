@@ -17,6 +17,18 @@ const AuthForm = styled.form`
 	box-shadow: 0 1px 14px -4px rgba(255, 255, 255, 1);
 `;
 
+const MessageContainer = styled.div`
+	padding: 1rem 2rem;
+	text-align: center;
+`;
+
+const WELCOME_MESSAGES = [
+	"It's a nice weather isn't it ",
+	'How are you doing today',
+	'Are you gonna stay for a while here',
+	'You have been successfully authenticated, but I wanted to ask about your day, how is it'
+];
+
 export default function Auth(): ReactElement {
 	const { doUserSignIn, doUserRegister, doUpdateUrl, isUserFetching } = useConnect(
 		'doUserSignIn',
@@ -28,11 +40,28 @@ export default function Auth(): ReactElement {
 	const { handleToastAdd } = useContext<ToastContextType>(ToastContext);
 
 	const handleFormSubmit = values => {
+		const args = [
+			displayErrorMessage,
+			currentUser => {
+				doUpdateUrl('/');
+				handleToastAdd({
+					type: 'success',
+					toast: (
+						<MessageContainer>
+							<Text color="white">
+								{WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)]} {currentUser.email}?
+							</Text>
+						</MessageContainer>
+					)
+				});
+			}
+		];
+
 		if (isSignUp) {
-			doUserSignIn(values, displayErrorMessage, () => doUpdateUrl('/'));
+			doUserRegister(values, ...args);
 			return;
 		}
-		doUserRegister(values, displayErrorMessage, () => doUpdateUrl('/'));
+		doUserSignIn(values, ...args);
 	};
 
 	const displayErrorMessage = (message: string) => {

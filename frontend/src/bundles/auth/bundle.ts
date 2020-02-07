@@ -1,7 +1,7 @@
 import { createSelector } from 'redux-bundler';
 import createReducer from '../create-reducer';
 import createFetchRequest, { SuccessHandler } from '../create-fetch-request';
-import { USER_LOGIN, USER_REGISTER } from './constants';
+import { USER_CLEANUP, USER_LOGIN, USER_REGISTER } from './constants';
 import { ErrorHandler } from '../../common/errors';
 
 type AuthParams = {
@@ -12,25 +12,20 @@ type AuthParams = {
 type State = {
 	isUserAuthenticated: boolean;
 	isUserFetching: boolean;
-	currentUser: {
-		username?: string;
-	};
 };
 
 const initialState: State = {
 	isUserAuthenticated: false,
-	isUserFetching: false,
-	currentUser: {}
+	isUserFetching: false
 };
 
 const handler = {
-	[USER_REGISTER.SUCCESS]: (state, action) => ({
+	[USER_REGISTER.SUCCESS]: state => ({
 		...state,
-		currentUser: action.payload,
 		isUserFetching: false,
 		isUserAuthenticated: true
 	}),
-	[USER_REGISTER.ERROR]: (state, action) => ({ ...state, isUserFetching: false }),
+	[USER_REGISTER.ERROR]: state => ({ ...state, isUserFetching: false }),
 
 	[USER_LOGIN.SUCCESS]: (state, action) => ({
 		...state,
@@ -38,7 +33,8 @@ const handler = {
 		isUserFetching: false,
 		isUserAuthenticated: true
 	}),
-	[USER_LOGIN.ERROR]: (state, action) => ({ ...state, isUserFetching: false })
+	[USER_LOGIN.ERROR]: state => ({ ...state, isUserFetching: false }),
+	[USER_CLEANUP]: () => initialState
 };
 
 export default {
@@ -55,7 +51,7 @@ export default {
 	),
 	doUserSignIn: (body: AuthParams, errorHandler: ErrorHandler, successHandler: SuccessHandler) =>
 		createFetchRequest(USER_LOGIN, {
-			endpoint: '/auth/sign-in',
+			endpoint: '/auth/login',
 			method: 'POST',
 			body,
 			errorHandler,
@@ -80,15 +76,14 @@ export default {
 			return false;
 		}
 	),
+	doUserCleanUp: () => ({ type: USER_CLEANUP }),
+
 	reactUserRedirect: createSelector(
 		'selectAuthRaw',
+		'selectUserRaw',
 		'selectPathname',
-		(authState, pathname) => {
-			if (
-				Object.keys(authState.currentUser).length > 1 &&
-				authState.currentUser.username &&
-				pathname === '/auth'
-			) {
+		(authState, user, pathname) => {
+			if (Object.keys(user.currentUser).length > 1 && user.currentUser.username && pathname === '/auth') {
 				return { actionCreator: 'doUpdateUrl', args: ['/'] };
 			}
 			return false;

@@ -28,10 +28,10 @@ const mappedMethods = {
 };
 
 export const createAPIActions = (baseAction: string): Actions => {
-	return <Actions>['START', 'SUCCESS', 'ERROR'].reduce((hash, item) => {
+	return ['START', 'SUCCESS', 'ERROR'].reduce((hash, item) => {
 		hash[item] = `${baseAction.toUpperCase()}_${item}`;
 		return hash;
-	}, {});
+	}, {}) as Actions;
 };
 
 export default function createFetchRequest(
@@ -46,8 +46,8 @@ export default function createFetchRequest(
 			dispatch({ type: actions.SUCCESS, payload: result.data });
 			if (successHandler instanceof Function) successHandler(result.data);
 		} catch (e) {
-			if (errorHandler instanceof Function) errorHandler(e.response.data && e.response.data.message || e.message);
-			dispatch({ type: actions.ERROR, payload: e.response.data && e.response.data.message || e.message });
+			if (errorHandler instanceof Function) errorHandler(e.response.data ? e.response.data.message : e.message);
+			dispatch({ type: actions.ERROR, payload: e.response.data ? e.response.data.message : e.message });
 		}
 	};
 }

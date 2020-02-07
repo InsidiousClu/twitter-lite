@@ -12,15 +12,13 @@ const BASE_GAP = 120;
 export default function ToastProvider({ children, duration = 3000 }: Props): ReactElement {
 	const [listItems, handleItemsChange] = useState<Array<ToastParams>>([]);
 
-	const handleToastAdd = ({ type, toast }: { type: ToastType, toast: string | FunctionComponent} ) => {
-		if (listItems.length < 5) {
-			handleItemsChange((prevState: Array<ToastParams>) => {
-				return [
-					{ key: uuidv4(), toast, posY: 0, type },
-					...prevState.map((item, i) => ({ ...item, posY: (i + 1) * BASE_GAP }))
-				];
-			});
-		}
+	const handleToastAdd = ({ type, toast }: { type: ToastType; toast: string | FunctionComponent }) => {
+		handleItemsChange((prevState: Array<ToastParams>) => {
+			return [
+				{ key: uuidv4(), toast, posY: 0, type },
+				...prevState.map((item, i) => ({ ...item, posY: (i + 1) * BASE_GAP }))
+			];
+		});
 	};
 
 	const removeToastNode = id => {

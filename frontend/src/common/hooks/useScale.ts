@@ -1,4 +1,4 @@
-import { OpaqueInterpolation, useSpring, config as conf, SpringConfig } from 'react-spring';
+import { SpringValue, useSpring, config as conf, SpringConfig } from 'react-spring';
 
 type UseScaleProps = {
 	initialScale: number;
@@ -10,7 +10,7 @@ type UseScaleProps = {
 type ScaleHandlers = {
 	handleMouseOver: () => void;
 	handleMouseLeave: () => void;
-	scale: OpaqueInterpolation<number>;
+	scale: SpringValue<number>;
 };
 
 export default function useScale({

@@ -23,6 +23,8 @@ func main() {
 		ReadTimeout: 10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
+
+
 	log.Println("Listening on:", c.AppAddr)
 	log.Fatal(srv.ListenAndServe())
 }

@@ -58,7 +58,7 @@ func SerializeUser(user models.User) ([]byte, error) {
 func GenerateJWTToken(currentUser *models.User) (*string, error) {
 	mySigningKey := []byte("twitterLite")
 	claims := AuthClaims{
-		&jwt.StandardClaims{ ExpiresAt: time.Now().UTC().Add(21 * time.Hour).Unix(), Issuer: "TwitterLite" },
+		&jwt.StandardClaims{ ExpiresAt: time.Now().UTC().Add(60 * time.Second).Unix(), Issuer: "TwitterLite" },
 		currentUser.ID,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

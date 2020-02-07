@@ -17,7 +17,7 @@ const store = createStore();
 ReactDOM.render(
 	<ReduxBundlerProvider store={store}>
 		<ThemeProvider theme={theme}>
-			<ToastProvider>
+			<ToastProvider duration={3500}>
 				<App />
 				<GlobalStyles />
 			</ToastProvider>

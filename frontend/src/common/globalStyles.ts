@@ -4,7 +4,8 @@ export const theme = {
 	colors: {
 		dark_blue: '#15202B',
 		blue: '#253341',
-		twitter_blue: '#1DA1F2'
+		twitter_blue: '#1DA1F2',
+		twitter_border: '#38444d'
 	}
 };
 
