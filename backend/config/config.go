@@ -34,7 +34,12 @@ func NewConfig() (*Config, error) {
 		return nil, err
 	}
 	db.LogMode(true)
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Tweet{}, &models.User{})
+	seed := GetEnv("SEED_DB", "")
+	if seed != "" {
+		CreateSeeds(db)
+	}
+
 	c := Config{
 		Conn: db,
 		AppAddr: fmt.Sprintf(":%s", GetEnv("PORT", "8082")),

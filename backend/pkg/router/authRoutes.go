@@ -12,5 +12,4 @@ func AuthRoutes(r *mux.Router, conn *gorm.DB) {
 	ac := controllers.NewAuthController(conn)
 	authRouter.HandleFunc("/register", ac.HandleUserRegister).Methods(http.MethodOptions, http.MethodPost)
 	authRouter.HandleFunc("/login", ac.HandleUserLogin).Methods(http.MethodOptions, http.MethodPost)
-
 }

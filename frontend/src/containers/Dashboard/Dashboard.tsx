@@ -10,10 +10,12 @@ const Content = styled.div`
 `;
 
 export default function Dashboard(): ReactElement | null {
-	const { isUserAuthenticated, currentUser, doSessionUpdate } = useConnect(
+	const { isUserAuthenticated, currentUser, doSessionUpdate, doFetchMyTweets, myTweets } = useConnect(
 		'doSessionUpdate',
+		'doFetchMyTweets',
 		'selectIsUserAuthenticated',
-		'selectCurrentUser'
+		'selectCurrentUser',
+		'selectMyTweets'
 	);
 	const [isDrawerOpen, handleDrawerStateChange] = useState<boolean>(false);
 	const [{ width }, set] = useSpring(() => ({ width: 100, config: { ...config.default, duration: 150 } }));
@@ -22,11 +24,11 @@ export default function Dashboard(): ReactElement | null {
 		set({ width: isDrawerOpen ? 400 : 0, delay: isDrawerOpen ? 400 : 0 });
 	}, [isDrawerOpen]);
 
-	useEffect(() => {}, []);
-
 	if (!isUserAuthenticated) {
 		return null;
 	}
+
+	console.log(myTweets);
 
 	return (
 		<>

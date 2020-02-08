@@ -1,10 +1,9 @@
-import React, { ReactElement, useEffect, useRef, useState } from 'react';
+import React, { ReactElement, useEffect, useRef } from 'react';
 import { useConnect } from 'redux-bundler-hook';
 import styled from 'styled-components';
 
-import { Flex } from '../common/primitives';
+import { Flex, Text } from '../common/primitives';
 import clock from '../assets/clock.svg';
-import Spinner from './Spinner';
 
 const ClockImage = styled.img`
 	height: 75%;
@@ -17,20 +16,20 @@ const Ticker = styled.span`
 `;
 
 const INTERVAL_BASE = 1000;
+const getTickerTime = value => value / 1000;
 
 export default function Clock(): ReactElement {
-	const { isSessionActive, tickerRemainingTime, scheduledUpdateCount } = useConnect(
+	const { isSessionActive, tickerRemainingTime, doChangeInternalTickerState } = useConnect(
 		'selectIsSessionActive',
-		'selectScheduledUpdateCount',
+		'doChangeInternalTickerState',
 		'selectTickerRemainingTime'
 	);
 	const interval = useRef<number>(0);
-	const [sessionTime, handleSessionTimeChange] = useState(0);
 
 	useEffect(() => {
 		if (isSessionActive && !interval.current) {
 			interval.current = setInterval(() => {
-				handleSessionTimeChange(prevState => prevState - INTERVAL_BASE);
+				doChangeInternalTickerState(INTERVAL_BASE);
 			}, INTERVAL_BASE);
 		}
 		return () => {
@@ -38,20 +37,10 @@ export default function Clock(): ReactElement {
 		};
 	}, [isSessionActive]);
 
-	useEffect(() => {
-		if (sessionTime === 0) {
-			clearInterval(interval.current);
-		}
-	}, [sessionTime]);
-
-	useEffect(() => {
-		handleSessionTimeChange(tickerRemainingTime);
-	}, [scheduledUpdateCount, tickerRemainingTime]);
-
 	return (
 		<Flex className="h-100" alignItems="center">
 			<ClockImage src={clock} alt="ticker" />
-			{!tickerRemainingTime ? <Spinner /> : <Ticker>{sessionTime / 1000}</Ticker>}
+			<Ticker>{getTickerTime(tickerRemainingTime)}</Ticker>
 		</Flex>
 	);
 }

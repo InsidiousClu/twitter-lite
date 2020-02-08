@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import { animated, interpolate } from 'react-spring';
+import { animated, to } from 'react-spring';
 import { useScale } from '../hooks';
 
 type Props = {
@@ -24,7 +24,7 @@ export default function TwitterIcon({
 		<animated.div
 			onMouseOver={handleMouseOver}
 			onMouseLeave={handleMouseLeave}
-			style={{ transform: interpolate(scale, s => `scale(${s})`) }}
+			style={{ transform: to(scale, s => `scale(${s})`) }}
 			className={className}
 		>
 			<svg viewBox="0 0 24 24" width={`${width}${unit}`} height={`${height}${unit}`}>

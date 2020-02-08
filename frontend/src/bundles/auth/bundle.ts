@@ -27,9 +27,8 @@ const handler = {
 	}),
 	[USER_REGISTER.ERROR]: state => ({ ...state, isUserFetching: false }),
 
-	[USER_LOGIN.SUCCESS]: (state, action) => ({
+	[USER_LOGIN.SUCCESS]: state => ({
 		...state,
-		currentUser: action.payload,
 		isUserFetching: false,
 		isUserAuthenticated: true
 	}),

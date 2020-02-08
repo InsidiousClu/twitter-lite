@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"fmt"
 	"github.com/InsidiousClu/twitter-clone/pkg/services"
 	"github.com/InsidiousClu/twitter-clone/pkg/utils"
 	"github.com/gorilla/mux"
@@ -10,12 +11,14 @@ import (
 	"os"
 )
 
-func headersMiddleware(next http.Handler) http.Handler {
+func HeadersMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Add("Accept-Charset","utf-8")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, Access-Control-Allow-Origin")
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -59,12 +62,13 @@ func AuthenticationMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		ctx := context.WithValue(r.Context(), "userId", userId)
+		fmt.Println("CONTEXT:", ctx.Value("userId"))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func InitCommonMiddlewares(r *mux.Router) {
-	r.Use(headersMiddleware)
+	r.Use(HeadersMiddleware)
 	r.Use(loggerMiddleware)
 	r.Use(optionsMiddleware)
 

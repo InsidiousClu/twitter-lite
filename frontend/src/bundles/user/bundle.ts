@@ -2,11 +2,15 @@ import { createSelector } from 'redux-bundler';
 import createReducer from '../create-reducer';
 import { USER_LOGIN, USER_REGISTER } from '../auth/constants';
 
+export type User = {
+	id?: number;
+	username?: string;
+	email?: string;
+	auth_token?: string;
+};
+
 type State = {
-	currentUser: {
-		username?: string;
-		email?: string;
-	};
+	currentUser: User;
 };
 
 const initialState = {
@@ -22,5 +26,12 @@ export default {
 	name: 'user',
 	reducer: createReducer<State>(initialState, handlers),
 	selectUserRaw: state => state.user,
-	selectCurrentUser: createSelector('selectUserRaw', ({ currentUser }) => currentUser),
+	selectCurrentUser: createSelector(
+		'selectUserRaw',
+		({ currentUser }) => currentUser
+	),
+	selectUserToken: createSelector(
+		'selectUserRaw',
+		({ auth_token }) => auth_token
+	)
 };

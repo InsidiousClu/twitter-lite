@@ -1,7 +1,10 @@
 package router
 
 import (
+	"encoding/json"
 	"github.com/InsidiousClu/twitter-clone/pkg/controllers"
+	"github.com/InsidiousClu/twitter-clone/pkg/services"
+	"github.com/InsidiousClu/twitter-clone/pkg/utils"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -19,7 +22,32 @@ type Message struct {
 	Payload string `json:"payload"`
 }
 
-func WSHandler(upgrader websocket.Upgrader) http.HandlerFunc {
+
+func handleBroadcast(broadcaster utils.Broadcaster, c *websocket.Conn, tc *controllers.TickerController) {
+	ch := make(chan interface{})
+	broadcaster.Register(ch)
+	defer broadcaster.Unregister(ch)
+	for v := range ch {
+		switch v.(type) {
+		case services.SocketTweets:
+			msg, err := json.Marshal(v.(services.SocketTweets))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			go tc.ResetTicker(1)
+			tc.GetRemainingTime(1)
+
+			err = c.WriteMessage(1, msg)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+		}
+	}
+}
+
+func WSHandler(broadcaster utils.Broadcaster, upgrader websocket.Upgrader) http.HandlerFunc {
 	return func (w http.ResponseWriter, r *http.Request) {
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -28,30 +56,24 @@ func WSHandler(upgrader websocket.Upgrader) http.HandlerFunc {
 		tc := controllers.NewTickerController(c, 60)
 
 		defer c.Close()
+		go handleBroadcast(broadcaster, c, tc)
+
 		for {
 			mt, message, err := c.ReadMessage()
 			msg := string(message)
 			if err != nil {
-				log.Println("read:", err)
+				log.Println("Read:", err)
 				break
 			}
-			log.Printf("recv: %s", message)
+			log.Printf("Received: %s", message)
 			switch msg {
 			case TickerSocketMessageStart:
 				go tc.CreateTicker(mt)
 			case TickerState:
-				err := tc.GetRemainingTime(mt)
-				if err != nil {
-					log.Println(err)
-					break
-				}
+				tc.GetRemainingTime(mt)
 			case ResetTicker:
 				go tc.ResetTicker(mt)
-				err := tc.GetRemainingTime(mt)
-				if err != nil {
-					log.Println(err)
-					break
-				}
+				tc.GetRemainingTime(mt)
 			}
 		}
 	}

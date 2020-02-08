@@ -22,6 +22,7 @@ func WriteResponse(w http.ResponseWriter, err error, data []byte) {
 		default:
 			w.WriteHeader(http.StatusTeapot)
 			w.Write([]byte(err.Error()))
+			return
 		}
 	}
 	w.WriteHeader(http.StatusOK)
