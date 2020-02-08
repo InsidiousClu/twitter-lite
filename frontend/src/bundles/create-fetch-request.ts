@@ -1,9 +1,13 @@
 import { ApiInterface } from '../api/Api';
 import { ErrorHandler } from '../common/errors';
+import { User } from './user/bundle';
 
 type CreateFetchRequestProps = {
 	dispatch: ({ type, payload }: { type: string; payload?: any }) => void;
 	fetchApi: ApiInterface;
+	store: {
+		selectCurrentUser: () => User;
+	};
 };
 
 export type SuccessHandler = (...args: any) => void;
@@ -39,15 +43,20 @@ export default function createFetchRequest(
 	{ endpoint, method, body, errorHandler, successHandler }: CreateFetchRequestOptions
 ) {
 	const fetchMethod = mappedMethods[method.toLowerCase()];
-	return async ({ dispatch, fetchApi }: CreateFetchRequestProps) => {
+	return async ({ dispatch, fetchApi, store: { selectCurrentUser } }: CreateFetchRequestProps) => {
 		dispatch({ type: actions.START });
+		const user = selectCurrentUser();
 		try {
-			const result = await fetchApi[fetchMethod](endpoint, body);
+			const result = await fetchApi[fetchMethod](endpoint, body, user.auth_token);
 			dispatch({ type: actions.SUCCESS, payload: result.data });
 			if (successHandler instanceof Function) successHandler(result.data);
 		} catch (e) {
-			if (errorHandler instanceof Function) errorHandler(e.response.data ? e.response.data.message : e.message);
-			dispatch({ type: actions.ERROR, payload: e.response.data ? e.response.data.message : e.message });
+			if (errorHandler instanceof Function)
+				errorHandler(e.response && e.response.data ? e.response.data.message : e.message);
+			dispatch({
+				type: actions.ERROR,
+				payload: e.response && e.response.data ? e.response.data.message : e.message
+			});
 		}
 	};
 }

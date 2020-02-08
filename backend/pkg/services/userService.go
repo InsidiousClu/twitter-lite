@@ -22,8 +22,8 @@ func (us *UserService) CreateUser(email, password string) ([]byte, error) {
 		log.Println(err)
 	}
 	var usr models.User
-	us.conn.Where("email = ?", email).Select("id, first_name, email").First(&usr)
-	if usr == (models.User{}) {
+	local := us.conn.Where("email = ?", email).Select("id, first_name, email").First(&usr).Value
+	if local == nil {
 		usr.Password = string(pass)
 		usr.Email = email
 		us.conn.Save(&usr)

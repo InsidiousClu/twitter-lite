@@ -1,7 +1,13 @@
 import { createSelector } from 'redux-bundler';
 
 import createReducer from '../create-reducer';
-import { GET_TICKER_STATE, REGISTER_TICKER, TICKER_UPDATE, UNREGISTER_TICKER } from './constants';
+import {
+	GET_TICKER_STATE,
+	REGISTER_TICKER,
+	TICKER_INTERNAL_STATE_CHANGE,
+	TICKER_UPDATE,
+	UNREGISTER_TICKER
+} from './constants';
 
 type State = {
 	isSessionActive: boolean;
@@ -14,7 +20,7 @@ const initialState = {
 	isSessionActive: false,
 	isTickerTimerInitialized: false,
 	scheduledUpdateCount: 0,
-	tickerRemainingTime: 0,
+	tickerRemainingTime: 0
 };
 
 const TICKET_START = 'TICKER_START';
@@ -25,7 +31,17 @@ const handlers = {
 	[REGISTER_TICKER]: state => ({ ...state, isSessionActive: true }),
 	[UNREGISTER_TICKER]: state => ({ ...state, isSessionActive: false }),
 	[TICKER_UPDATE]: state => ({ ...state, scheduledUpdateCount: state.scheduledUpdateCount + 1 }),
-	[GET_TICKER_STATE]: (state, action) => ({ ...state, tickerRemainingTime: action.payload * 1000, isTickerTimerInitialized: true })
+	[GET_TICKER_STATE]: (state, action) => ({
+		...state,
+		tickerRemainingTime: action.payload * 1000,
+		isTickerTimerInitialized: true
+	}),
+	[TICKER_INTERNAL_STATE_CHANGE]: (state, action) => {
+		if (state.tickerRemainingTime > 0) {
+			return { ...state, tickerRemainingTime: state.tickerRemainingTime - action.payload };
+		}
+		return state;
+	}
 };
 
 export default {
@@ -78,6 +94,7 @@ export default {
 		}
 	},
 	doGetTicketState: payload => ({ type: GET_TICKER_STATE, payload: parseInt(payload) }),
+	doChangeInternalTickerState: payload => ({ type: TICKER_INTERNAL_STATE_CHANGE, payload: payload }),
 
 	reactShouldRunExpirationSession: createSelector(
 		'selectSessionTickerRaw',
@@ -95,7 +112,12 @@ export default {
 		'selectAuthRaw',
 		'selectPathname',
 		(ticker, auth, pathname) => {
-			if (pathname === '/' && auth.isUserAuthenticated && ticker.isSessionActive && !ticker.isTickerTimerInitialized) {
+			if (
+				pathname === '/' &&
+				auth.isUserAuthenticated &&
+				ticker.isSessionActive &&
+				!ticker.isTickerTimerInitialized
+			) {
 				return { actionCreator: 'doGetRemainingSessionTime' };
 			}
 			return false;
