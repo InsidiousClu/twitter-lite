@@ -8,18 +8,17 @@ import {
 	TICKER_UPDATE,
 	UNREGISTER_TICKER
 } from './constants';
+import { USER_CLEANUP } from '../auth/constants';
 
 type State = {
 	isSessionActive: boolean;
 	isTickerTimerInitialized: boolean;
-	scheduledUpdateCount: number;
 	tickerRemainingTime: number;
 };
 
 const initialState = {
 	isSessionActive: false,
 	isTickerTimerInitialized: false,
-	scheduledUpdateCount: 0,
 	tickerRemainingTime: 0
 };
 
@@ -30,7 +29,7 @@ const GET_TICKER_SECONDS = 'GET_TICKER_SECONDS';
 const handlers = {
 	[REGISTER_TICKER]: state => ({ ...state, isSessionActive: true }),
 	[UNREGISTER_TICKER]: state => ({ ...state, isSessionActive: false }),
-	[TICKER_UPDATE]: state => ({ ...state, scheduledUpdateCount: state.scheduledUpdateCount + 1 }),
+	[USER_CLEANUP]: () => initialState,
 	[GET_TICKER_STATE]: (state, action) => ({
 		...state,
 		tickerRemainingTime: action.payload * 1000,
@@ -52,10 +51,6 @@ export default {
 	selectIsSessionActive: createSelector(
 		'selectSessionTickerRaw',
 		({ isSessionActive }) => isSessionActive
-	),
-	selectScheduledUpdateCount: createSelector(
-		'selectSessionTickerRaw',
-		({ scheduledUpdateCount }) => scheduledUpdateCount
 	),
 	selectTickerRemainingTime: createSelector(
 		'selectSessionTickerRaw',

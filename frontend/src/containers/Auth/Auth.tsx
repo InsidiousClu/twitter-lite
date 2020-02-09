@@ -49,7 +49,8 @@ export default function Auth(): ReactElement {
 					toast: (
 						<MessageContainer>
 							<Text color="white">
-								{WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)]} {currentUser.email}?
+								{WELCOME_MESSAGES[Math.floor(Math.random() * WELCOME_MESSAGES.length)]}{' '}
+								{currentUser.user_name || currentUser.email}?
 							</Text>
 						</MessageContainer>
 					)

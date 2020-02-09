@@ -5,9 +5,8 @@ import ToastList from './dataViews/Toast/ToastConsumer';
 import styled from 'styled-components';
 
 const AppContainer = styled.div`
-	background-color: ${props => props.theme.colors.dark_blue};
 	display: grid;
-	height: 100vh;
+	height: 100%;
 	width: 100%;
 	overflow-x: hidden;
 `;

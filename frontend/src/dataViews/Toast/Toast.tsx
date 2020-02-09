@@ -97,6 +97,7 @@ export default function Toast({
 
 	return (
 		<PositionAbsolute
+			zIndex={9999}
 			style={{
 				transform: interpolate(
 					[x, y],
