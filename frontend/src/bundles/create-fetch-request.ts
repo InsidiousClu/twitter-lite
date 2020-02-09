@@ -24,6 +24,7 @@ type CreateFetchRequestOptions = {
 	body?: any;
 	errorHandler?: ErrorHandler;
 	successHandler?: SuccessHandler;
+	query?: Object
 };
 
 const mappedMethods = {
@@ -40,14 +41,14 @@ export const createAPIActions = (baseAction: string): Actions => {
 
 export default function createFetchRequest(
 	actions: Actions,
-	{ endpoint, method, body, errorHandler, successHandler }: CreateFetchRequestOptions
+	{ endpoint, method, body, errorHandler, successHandler, query }: CreateFetchRequestOptions
 ) {
 	const fetchMethod = mappedMethods[method.toLowerCase()];
 	return async ({ dispatch, fetchApi, store: { selectCurrentUser } }: CreateFetchRequestProps) => {
 		dispatch({ type: actions.START });
 		const user = selectCurrentUser();
 		try {
-			const result = await fetchApi[fetchMethod](endpoint, body, user.auth_token);
+			const result = await fetchApi[fetchMethod](endpoint, body || query, user.auth_token, query);
 			dispatch({ type: actions.SUCCESS, payload: result.data });
 			if (successHandler instanceof Function) successHandler(result.data);
 		} catch (e) {

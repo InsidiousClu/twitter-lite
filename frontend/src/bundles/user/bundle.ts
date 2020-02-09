@@ -1,6 +1,6 @@
 import { createSelector } from 'redux-bundler';
 import createReducer from '../create-reducer';
-import { USER_LOGIN, USER_REGISTER } from '../auth/constants';
+import { USER_CLEANUP, USER_LOGIN, USER_REGISTER } from '../auth/constants';
 
 export type User = {
 	id?: number;
@@ -19,7 +19,8 @@ const initialState = {
 
 const handlers = {
 	[USER_REGISTER.SUCCESS]: (state, action) => ({ ...state, currentUser: action.payload }),
-	[USER_LOGIN.SUCCESS]: (state, action) => ({ ...state, currentUser: action.payload })
+	[USER_LOGIN.SUCCESS]: (state, action) => ({ ...state, currentUser: action.payload }),
+	[USER_CLEANUP]: () => initialState
 };
 
 export default {

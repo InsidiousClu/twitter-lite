@@ -11,6 +11,8 @@ type Props = {
 const AppLayoutContainer = styled(animated.div)<any>`
 	width: 100%;
 	height: 100%;
+	background-color: ${props => props.theme.colors.dark_blue};
+	overflow-x: hidden;
 `;
 
 export default function AppLayout({ children, routeId }: Props): any {

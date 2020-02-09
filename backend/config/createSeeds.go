@@ -23,7 +23,7 @@ func createUserWithTweets(m Model) models.User {
 	usr :=  models.User{
 		Base: models.Base{},
 		Email:     m.email,
-		Avatar:    fmt.Sprintf("http://localhost:8082/static/avatar_%d.jpg", m.avatarNo),
+		Avatar:    fmt.Sprintf("http://localhost:8082/public/avatar_%d.jpg", m.avatarNo),
 		Password:  string(userPass),
 		UserName: m.userName,
 		FirstName: m.firstName,

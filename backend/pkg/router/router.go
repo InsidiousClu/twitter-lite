@@ -12,26 +12,27 @@ import (
 
 
 func HandleRequest(conn *gorm.DB) (*mux.Router, utils.Broadcaster) {
-	r := mux.NewRouter()
+	broadcaster := utils.NewBroadcaster(10)
+	tc := controllers.NewTwitterController(conn, broadcaster)
 	upgrader := websocket.Upgrader{ CheckOrigin: func(r *http.Request) bool { return true } }
 
-	broadcaster := utils.NewBroadcaster(10)
-
-	tc := controllers.NewTwitterController(conn, broadcaster)
-
-
-	r.HandleFunc("/tweets/like", tc.HandleTweetLike).Methods(http.MethodOptions, http.MethodPost)
-	r.HandleFunc("/tweets/retweet", tc.HandleRetweet).Methods(http.MethodOptions, http.MethodPost)
-	r.HandleFunc("/tweets/{userId:[0-9]+}", tc.HandleTweetsGet).Methods(http.MethodOptions, http.MethodGet)
-
+	r := mux.NewRouter().StrictSlash(true)
+	fs := CreateFileServer()
+	r.PathPrefix(StaticDir).Handler(http.StripPrefix(StaticDir, fs))
 	r.HandleFunc("/ws", WSHandler(broadcaster, upgrader))
-	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+
+	api := r.PathPrefix("/api").Subrouter()
+	api.HandleFunc("/tweets/like", tc.HandleTweetLike).Methods(http.MethodOptions, http.MethodPost)
+	api.HandleFunc("/tweets/retweet", tc.HandleRetweet).Methods(http.MethodOptions, http.MethodPost)
+	api.HandleFunc("/tweets/{userId:[0-9]+}", tc.HandleTweetsGet).Methods(http.MethodOptions, http.MethodGet)
+
+	api.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
 
-	PrivateRoutes(r, tc)
-	AuthRoutes(r, conn)
-	InitCommonMiddlewares(r)
+	InitCommonMiddlewares(api)
+	PrivateRoutes(api, tc)
+	AuthRoutes(api, conn)
 
 	return r, broadcaster
 }

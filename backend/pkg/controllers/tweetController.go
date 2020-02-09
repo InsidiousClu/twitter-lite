@@ -57,8 +57,19 @@ func (tc *TwitterController) HandleTweetsGet(w http.ResponseWriter, r *http.Requ
 		utils.WriteResponse(w, err, response)
 		return
 	}
-
 	utils.WriteResponse(w, customErrors.NewMissingParamError("userId not found", "userId"), nil)
+}
+
+
+func (tc *TwitterController) HandleTweetCreate(w http.ResponseWriter, r *http.Request) {
+	fieldMap, err := utils.GetFields(r.Body, []string{ "tweet" })
+	id := r.Context().Value("userId")
+	if err != nil {
+		utils.WriteResponse(w, err, nil)
+		return
+	}
+	response, err := tc.ts.CreateTweet(id.(uint), fieldMap["tweet"])
+	utils.WriteResponse(w, err, response)
 }
 
 func (tc *TwitterController) GetMyTweets(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +79,7 @@ func (tc *TwitterController) GetMyTweets(w http.ResponseWriter, r *http.Request)
 	endsAt := v.Get("endsAt")
 
 	if id != nil && startsAt != "" && endsAt != "" {
-		response, err := tc.ts.GetTweets(id.(string), startsAt, endsAt)
+		response, err := tc.ts.GetTweets(id, startsAt, endsAt)
 		utils.WriteResponse(w, err, response)
 		return
 	}

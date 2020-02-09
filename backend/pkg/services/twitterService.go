@@ -5,6 +5,7 @@ import (
 	"github.com/InsidiousClu/twitter-clone/pkg/models"
 	"github.com/InsidiousClu/twitter-clone/pkg/utils"
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
 
@@ -14,10 +15,10 @@ const (
 )
 
 type TwitterServiceInterface interface {
-	CreateTweet(userId uint, text string, likes int) ([]byte, error)
+	CreateTweet(userId uint, text string) ([]byte, error)
 	LikeTweet(tweetId uint) ([]byte, error)
 	Retweet(tweetId uint) ([]byte, error)
-	GetTweets(userId, startsAt, endsAt string) ([]byte, error)
+	GetTweets(userId interface{}, startsAt, endsAt string) ([]byte, error)
 }
 
 
@@ -38,13 +39,12 @@ type TwitterService struct {
 }
 
 type TweetsResponse struct {
-	tweets []models.Tweet
+	Tweets []models.Tweet `json:"tweets"`
 }
 
-func (tw *TwitterService) CreateTweet(userId uint, text string, likes int) ([]byte, error) {
+func (tw *TwitterService) CreateTweet(userId uint, text string) ([]byte, error) {
 	t := models.Tweet {
 		Text: text,
-		Likes: likes,
 		UserID: userId,
 	}
 	if err := tw.conn.Create(&t).Error; err != nil {
@@ -86,14 +86,20 @@ func (tw *TwitterService) LikeTweet(tweetId uint) ([]byte, error) {
 }
 
 
-func (tw *TwitterService) GetTweets(userId, startsAt, endsAt string) ([]byte, error) {
+func (tw *TwitterService) GetTweets(userId interface{}, startsAt, endsAt string) ([]byte, error) {
 	var t []models.Tweet
-
-	if err := tw.conn.Where("user_id = ? created_at BETWEEN ? AND ?", userId, startsAt, endsAt).Find(&t).Error; err != nil {
+	s, err := time.Parse(time.RFC3339, startsAt)
+	e, err := time.Parse(time.RFC3339, endsAt)
+	if err != nil {
+		return nil, err
+	}
+	if err := tw.conn.Where("user_id = ? AND created_at BETWEEN ? AND ?", userId, s, e).Order("created_at desc").Find(&t).Error; err != nil {
 		return nil, err
 	}
 
-	tweets, err := json.Marshal(TweetsResponse{tweets:t})
+	curr := TweetsResponse{Tweets: t}
+	tweets, err := json.Marshal(curr)
+
 	if err != nil {
 		return nil, err
 	}

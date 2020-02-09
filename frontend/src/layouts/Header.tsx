@@ -10,6 +10,7 @@ const HeaderContainer = styled(animated.div)`
 	background: ${props => props.theme.colors.blue};
 	border-bottom: 1px solid ${props => props.theme.colors.twitter_border};
 	padding: 0 2rem;
+	z-index: 1;
 	position: fixed;
 	top: 0;
 	right: 0;

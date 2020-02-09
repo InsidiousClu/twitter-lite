@@ -7,6 +7,7 @@ type AbsoluteProps = {
 	left?: number | string;
 	right?: number | string;
 	unit?: string;
+	zIndex?: number
 };
 
 const getMeasurement = (pos, val, unit) => `${pos}:${val}${unit || 'px'};`;
@@ -23,4 +24,5 @@ const getPropsAndCalculateMeasurements = props => {
 export const PositionAbsolute = styled(animated.div)<AbsoluteProps>`
 	position: absolute;
 	${getPropsAndCalculateMeasurements}
+	${props => props.zIndex && `z-index: ${props.zIndex}`};
 `;
