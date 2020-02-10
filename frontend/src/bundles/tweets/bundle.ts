@@ -1,7 +1,7 @@
 import { createSelector } from 'redux-bundler';
 import createReducer from '../create-reducer';
 import createFetchRequest from '../create-fetch-request';
-import { GET_MY_TWEETS, FETCH_SINGLE_TWEET, CREATE_NEW_TWEET } from './constants';
+import { GET_MY_TWEETS, TWEETS_EMPTY, CREATE_NEW_TWEET } from './constants';
 import { DateTime } from 'luxon';
 
 export type Tweet = {
@@ -13,11 +13,13 @@ export type Tweet = {
 type State = {
 	myTweets: Array<Tweet>;
 	isLoading: boolean;
+	tweetsAreEmpty: boolean;
 };
 
 const initialState = {
 	myTweets: [],
-	isLoading: false
+	isLoading: false,
+	tweetsAreEmpty: false
 };
 
 const handlers = {
@@ -35,7 +37,8 @@ const handlers = {
 	[CREATE_NEW_TWEET.SUCCESS]: (state, action) => ({
 		...state,
 		myTweets: [action.payload, ...state.myTweets.slice(1)]
-	})
+	}),
+	[TWEETS_EMPTY]: state => ({ ...state, tweetsAreEmpty: true })
 };
 
 export default {
@@ -54,25 +57,36 @@ export default {
 		'selectTweets',
 		({ isLoading }) => isLoading
 	),
+	selectTweetsAreEmpty: createSelector(
+		'selectTweets',
+		({ tweetsAreEmpty }) => tweetsAreEmpty
+	),
 
-	doFetchMyTweets: () =>
+	doFetchMyTweets: () => ({ fetchApi, dispatch, store: { selectCurrentUser } }) =>
 		createFetchRequest(GET_MY_TWEETS, {
 			method: 'GET',
 			endpoint: '/me/tweets',
+			successHandler: ({ tweets }) => {
+				if (!tweets.length) {
+					dispatch({ type: TWEETS_EMPTY });
+				}
+			},
 			query: {
 				startsAt: DateTime.local()
 					.minus({ weeks: 1 })
 					.toISO(),
 				endsAt: DateTime.local().toISO()
 			}
-		}),
+		})({ fetchApi, dispatch, store: { selectCurrentUser } }),
 
-	doMyTweetSubmit: tweet =>
+	doMyTweetSubmit: tweet => ({ fetchApi, dispatch, store: { selectCurrentUser, doSessionUpdate } }) => {
 		createFetchRequest(CREATE_NEW_TWEET, {
 			method: 'POST',
 			endpoint: '/me/create',
-			body: { tweet }
-		}),
+			body: { tweet },
+			successHandler: () => doSessionUpdate()
+		})({ fetchApi, dispatch, store: { selectCurrentUser } });
+	},
 
 	reactShouldLoadUserTweets: createSelector(
 		'selectAuthRaw',
@@ -80,13 +94,15 @@ export default {
 		'selectPathname',
 		'selectMyTweets',
 		'selectIsMyTweetsLoading',
-		(auth, currentUser, pathname, myTweets, isLoading) => {
+		'selectTweetsAreEmpty',
+		(auth, currentUser, pathname, myTweets, isLoading, tweetsAreEmpty) => {
 			if (
 				auth.isUserAuthenticated &&
 				pathname === '/' &&
 				Object.keys(currentUser).length > 0 &&
 				!myTweets.length &&
-				!isLoading
+				!isLoading &&
+				!tweetsAreEmpty
 			) {
 				return { actionCreator: 'doFetchMyTweets' };
 			}

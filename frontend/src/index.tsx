@@ -11,16 +11,19 @@ import GlobalStyles, { theme } from './common/globalStyles';
 import createStore from './bundles';
 
 import * as serviceWorker from './serviceWorker';
+import ModalProvider from './dataViews/Modal/ModalProvider';
 
 const store = createStore();
 
 ReactDOM.render(
 	<ReduxBundlerProvider store={store}>
 		<ThemeProvider theme={theme}>
-			<ToastProvider duration={3500}>
-				<App />
-				<GlobalStyles />
-			</ToastProvider>
+			<ModalProvider>
+				<ToastProvider duration={3500}>
+					<App />
+					<GlobalStyles />
+				</ToastProvider>
+			</ModalProvider>
 		</ThemeProvider>
 	</ReduxBundlerProvider>,
 	document.getElementById('root')
