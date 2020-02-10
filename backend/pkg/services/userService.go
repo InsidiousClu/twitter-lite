@@ -1,6 +1,8 @@
 package services
 
 import (
+	"encoding/json"
+	"fmt"
 	customErrors "github.com/InsidiousClu/twitter-clone/pkg/errors"
 	"github.com/InsidiousClu/twitter-clone/pkg/models"
 	"github.com/jinzhu/gorm"
@@ -10,10 +12,15 @@ import (
 type UserServiceInterface interface {
 	CreateUser(email, password string) ([]byte, error)
 	GetUserByPassword(email, password string) ([]byte, error)
+	GetUserByUsername(username string) ([]byte, error)
 }
 type UserService struct {
 	conn *gorm.DB
 	entityName string
+}
+
+type Suggestions struct {
+	Users []models.User `json:"users"`
 }
 
 func (us *UserService) CreateUser(email, password string) ([]byte, error) {
@@ -22,8 +29,8 @@ func (us *UserService) CreateUser(email, password string) ([]byte, error) {
 		log.Println(err)
 	}
 	var usr models.User
-	local := us.conn.Where("email = ?", email).Select("id, first_name, email").First(&usr).Value
-	if local == nil {
+	us.conn.Where("email = ?", email).Select("id, first_name, email").First(&usr)
+	if usr.Email == "" {
 		usr.Password = string(pass)
 		usr.Email = email
 		us.conn.Save(&usr)
@@ -35,6 +42,18 @@ func (us *UserService) CreateUser(email, password string) ([]byte, error) {
 		return serialized, nil
 	}
 	return nil, customErrors.NewEntityNotFoundError("user already exists", us.entityName)
+}
+
+func (us *UserService) GetUserByUsername(username string)  ([]byte, error) {
+	var usr []models.User
+	if err := us.conn.Where("to_tsvector(user_name) @@ to_tsquery(?)", fmt.Sprintf("%s:*", username)).Find(&usr).Error; err != nil {
+		return nil, err
+	}
+	serialized, err := json.Marshal(Suggestions{ Users:usr })
+	if err != nil {
+		return nil, err
+	}
+	return serialized, nil
 }
 
 func (us *UserService) GetUserByPassword(email, password string) ([]byte, error) {

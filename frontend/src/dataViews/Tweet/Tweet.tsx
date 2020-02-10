@@ -46,10 +46,10 @@ export default function Tweet({
 	created_at,
 	isLoading
 }: Props): ReactElement {
-	const { opacity, y } = useSpring({ from: { opacity: 0, y: -1000 }, to: { opacity: 1, y: 0 } });
+	const { opacity } = useSpring({ from: { opacity: 0 }, to: { opacity: 1 } });
 
 	return (
-		<TweetContainer style={{ opacity, translate: y.to(yAxis => `transform3d(0, ${yAxis}px, 0)`) }}>
+		<TweetContainer style={{ opacity }}>
 			<Flex className="h-100 pv-1" alignItems="center">
 				<div className="w-30 h-100 d-flex align-items-center justify-content-center">
 					{isLoading ? <SkeletonAvatar /> : <UserAvatar style={{ opacity }} src={avatar} alt="user avatar" />}

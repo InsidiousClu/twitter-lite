@@ -3,7 +3,6 @@ package controllers
 import (
 	"github.com/InsidiousClu/twitter-clone/pkg/services"
 	"github.com/InsidiousClu/twitter-clone/pkg/utils"
-	"github.com/jinzhu/gorm"
 	"net/http"
 )
 
@@ -37,7 +36,7 @@ func (ac *AuthController) HandleUserRegister(w http.ResponseWriter, r *http.Requ
 
 
 
-func NewAuthController(conn *gorm.DB) *AuthController {
-	ac := AuthController{ us: services.NewUserService(conn) }
+func NewAuthController(us services.UserServiceInterface) *AuthController {
+	ac := AuthController{ us: us }
 	return &ac
 }

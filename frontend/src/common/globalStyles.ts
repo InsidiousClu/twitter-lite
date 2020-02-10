@@ -12,6 +12,8 @@ export const theme = {
 export default createGlobalStyle`
 body {
 	font-family: 'Roboto', sans-serif;
+	overflow-x: hidden;
+	background-color: ${theme.colors.dark_blue};
 }
 input {
 	outline: none;
@@ -103,6 +105,11 @@ input {
 	}
 }
 .align {
+	&-self {
+		&-end {
+			align-self: flex-end;
+		}
+	}
 	&-items {
 		&-center {
 			align-items: center;
